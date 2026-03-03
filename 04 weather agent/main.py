@@ -14,7 +14,7 @@ def main():
         messages=[
             {"role":"user","content":user_query}
         ],
-        max_tokens=1000  # <-- Add this line to cap the response length
+        max_tokens=1000  
     )
 
     print(f"🤖 : {response.choices[0].message.content}")
