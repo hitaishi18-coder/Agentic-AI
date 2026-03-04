@@ -72,8 +72,9 @@ while True:
     MAX_RETRY = 5
 
     while True:
+        # FIX 1: Use a valid Groq model ID (e.g., llama3-70b-8192, mixtral-8x7b-32768, or qwen-2.5-32b)
         response = client.chat.completions.create(
-            model="qwen/qwen3-32b",
+            model="llama3-70b-8192", 
             messages=message_history,
             temperature=0
         )
@@ -104,6 +105,12 @@ while True:
 
         step = parsed.get("step")
 
+        # FIX 2: Added the START step handler so the loop doesn't silently skip it
+        # ---------------- START ----------------
+        if step == "START":
+            print("🔥", parsed.get("content"))
+            continue
+
         # ---------------- PLAN ----------------
         if step == "PLAN":
             print("🧠", parsed.get("content"))
@@ -124,8 +131,9 @@ while True:
 
             print(f"🛠 Result: {tool_response}")
 
+            # FIX 3: Changed role from "developer" to "system" as Groq doesn't support "developer"
             message_history.append({
-                "role": "developer",
+                "role": "system", 
                 "content": json.dumps({
                     "step": "OBSERVE",
                     "tool": tool_name,
