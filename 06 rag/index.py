@@ -4,32 +4,33 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
-pdf_path = Path(__file__).parent / "nodejs.pdf"
 
 load_dotenv()
 
-#load this file in python program
+pdf_path = Path(__file__).parent / "nodejs.pdf"
 
+# load the file in python program
 loader = PyPDFLoader(file_path=str(pdf_path))
+
 docs = loader.load()
 
 # print(docs[12])
 
-# docs means pages 
 
-# split the docs into smaller chunks 
-
+# split the docs into smaller chunks
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000,
     chunk_overlap=400
 )
 
-chunks = text_splitter.split_documents(documents=docs)
+chunks = text_splitter.split_documents(docs)
 
-# vector embedding for chunks 
+
+# vector embedding
 embedding_model = OpenAIEmbeddings(
     model="text-embedding-3-large"
 )
+
 
 vector_store = QdrantVectorStore.from_documents(
     documents=chunks,
@@ -38,4 +39,5 @@ vector_store = QdrantVectorStore.from_documents(
     collection_name="learning-rag"
 )
 
-print("indexing of documents done...")
+print("Indexing of document done..")
+
