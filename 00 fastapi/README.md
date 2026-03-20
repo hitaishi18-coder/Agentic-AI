@@ -1,128 +1,123 @@
-# Tea House API
+# 00 - FastAPI: Building Modern APIs ⚡
 
-A simple FastAPI-based REST API for managing a tea collection with CRUD operations.
+This module introduces **FastAPI**, a high-performance web framework for building APIs with Python 3.7+ based on standard Python type hints.
 
-## 📋 Features
+## 📘 Theory: What is FastAPI?
 
-- **Get All Teas**: Retrieve the complete list of available teas
-- **Add Tea**: Add a new tea to the collection
-- **Update Tea**: Modify existing tea details by ID
-- **Delete Tea**: Remove a tea from the collection by ID
-- **Welcome Endpoint**: Get a greeting message
+FastAPI is a modern, fast (high-performance), web framework for building APIs with Python. It is built on top of **Starlette** (for the web parts) and **Pydantic** (for the data parts).
 
-## 🚀 Getting Started
+### Key Concepts:
+1.  **REST API**: A Representational State Transfer API that uses HTTP requests to GET, PUT, POST, and DELETE data.
+2.  **Pydantic (BaseModel)**: Used for data validation and settings management. It ensures that the data sent to or from the API follows a specific schema.
+3.  **Decorators**: FastAPI uses Python decorators (like `@app.get("/")`) to bind URL paths to specific functions.
+4.  **Uvicorn**: An ASGI (Asynchronous Server Gateway Interface) server implementation, used to run the FastAPI application.
 
-### Prerequisites
+---
 
-- Python 3.7 or higher
-- pip (Python package manager)
+## 🛠️ Imports & Libraries
 
-### Installation
+In `main.py`, we use:
+- `FastAPI`: The core class to create our web application.
+- `BaseModel`: From `pydantic`, used to define our data structure (schema).
+- `List`: From `typing`, to handle collections of data.
 
-1. **Clone or navigate to the project directory:**
-   ```bash
-   cd c:\Users\DELL\Desktop\fastapi
-   ```
-
-2. **Create and activate the virtual environment:**
-   ```bash
-   python -m venv venv
-   .\venv\Scripts\Activate.ps1
-   ```
-
-3. **Install dependencies:**
-   ```bash
-   python -m pip install fastapi uvicorn
-   ```
-
-## 📦 Dependencies
-
-- **FastAPI** - Modern web framework for building APIs
-- **Uvicorn** - ASGI server for running FastAPI applications
-- **Pydantic** - Data validation using Python type annotations
-
-## 🏃 Running the Server
-
-Activate the virtual environment (if not already active), then run:
-
-```bash
-uvicorn main:app --reload
+```python
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List
 ```
 
-The API will be available at `http://127.0.0.1:8000`
+---
 
-## 📚 API Endpoints
+## 💻 Code Explanation (Simplified)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Welcome message |
-| GET | `/teas` | Get all teas |
-| POST | `/teas` | Add a new tea |
-| PUT | `/teas/{tea_id}` | Update a tea by ID |
-| DELETE | `/teas/{tea_id}` | Delete a tea by ID |
-
-## 📤 Data Model
-
-```json
-{
-  "id": 1,
-  "name": "Green Tea",
-  "origin": "China"
-}
+### 1. The Data Schema
+We define what a "Tea" looks like using `Pydantic`. Every tea must have an `id` (integer), `name` (string), and `origin` (string).
+```python
+class Tea(BaseModel):
+    id: int
+    name: str 
+    origin: str 
 ```
 
-### Tea Schema
-
-- **id** (integer): Unique identifier for the tea
-- **name** (string): Name of the tea
-- **origin** (string): Origin/source country of the tea
-
-## 🔧 Example Usage
-
-### Welcome Message
-```bash
-curl http://127.0.0.1:8000/
+### 2. The Database (In-Memory)
+We use a simple Python list to store our teas. Note that this resets every time the server restarts!
+```python
+teas : List[Tea] = []
 ```
 
-### Get All Teas
-```bash
-curl http://127.0.0.1:8000/teas
+### 3. API Endpoints
+- **GET `/`**: Returns a simple welcome message.
+- **GET `/teas`**: Returns the list of all teas.
+- **POST `/teas`**: Adds a new tea to our list.
+- **PUT `/teas/{tea_id}`**: Finds a tea by ID and updates its details.
+- **DELETE `/teas/{tea_id}`**: Removes a tea from our list.
+
+---
+
+## 📜 Full Code Listing: `main.py`
+
+```python
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List
+
+app = FastAPI()
+
+class Tea(BaseModel):
+    id: int
+    name: str 
+    origin: str 
+
+teas : List[Tea] = []
+
+@app.get("/")
+def read_root():
+    return {"message": "welcome to tea house!"}
+
+@app.get("/teas")
+def get_teas():
+    return teas
+
+@app.post("/teas")
+def add_tea(tea: Tea):
+    teas.append(tea)
+    return tea
+
+@app.put("/teas/{tea_id}")
+def update_tea(tea_id: int, updated_tea: Tea):
+    for index, tea in enumerate(teas):
+        if tea.id == tea_id:
+            teas[index] = updated_tea
+            return updated_tea
+    return {"error": "tea not found!"}
+
+@app.delete("/teas/{tea_id}")
+def delete_tea(tea_id: int):
+    for index, tea in enumerate(teas):
+        if tea.id == tea_id:
+            deleted = teas.pop(index)
+            return deleted
+    return {"error": "tea not found"}
 ```
 
-### Add a New Tea
-```bash
-curl -X POST http://127.0.0.1:8000/teas \
-  -H "Content-Type: application/json" \
-  -d '{"id": 1, "name": "Green Tea", "origin": "China"}'
-```
+---
 
-### Update a Tea
-```bash
-curl -X PUT http://127.0.0.1:8000/teas/1 \
-  -H "Content-Type: application/json" \
-  -d '{"id": 1, "name": "Premium Green Tea", "origin": "Japan"}'
-```
+## 🚀 How to Run
 
-### Delete a Tea
-```bash
-curl -X DELETE http://127.0.0.1:8000/teas/1
-```
+1.  **Install dependencies**:
+    ```bash
+    pip install fastapi uvicorn
+    ```
+2.  **Run the server**:
+    ```bash
+    uvicorn main:app --reload
+    ```
+3.  **Access Documentation**:
+    - Interactive Docs (Swagger): [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+    - Alternative Docs (Redoc): [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
-## 🛠️ Interactive API Documentation
+---
 
-FastAPI automatically provides two interactive API documentation interfaces:
-
-- **Swagger UI**: http://127.0.0.1:8000/docs
-- **ReDoc**: http://127.0.0.1:8000/redoc
-
-Use these to test endpoints directly in your browser.
-
-## ⚠️ Notes
-
-- The tea collection is stored in memory and will be reset when the server restarts
-- For production use, consider adding a database (SQLAlchemy, MongoDB, etc.)
-- Error handling for edge cases (duplicate IDs, not found errors) can be enhanced
-
-## 📝 License
-
-This project is open source and available for educational purposes.
+## 🎯 Summary
+This project demonstrates the basics of **CRUD** (Create, Read, Update, Delete) operations using FastAPI. It uses **Pydantic** for type safety and **decorators** for routing.
