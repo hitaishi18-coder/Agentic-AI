@@ -1,38 +1,94 @@
-# 04 Weather Agent (Tool Calling & Agents)
+# 04 - Weather Agent: Agents & Tool Use 🌦️
 
-This directory demonstrates how to bridge the gap between a standard conversational LLM and an "Agent" capable of interacting with the outside world. Specifically, it shows how to build an AI assistant that can fetch real-time weather data using external APIs.
+This module takes LLMs to the next level by giving them the ability to **interact with the real world** using tools (APIs).
 
-## Overview
+---
 
-The scripts in this folder illustrate a clear progression from a basic chat script to a fully autonomous, reasoning agent:
-* **Baseline LLM**: A simple chat completion loop.
-* **Heuristic Tool Calling**: Hardcoded logic that triggers an API call based on keywords.
-* **Agentic Tool Calling (Chain of Thought)**: An advanced setup where the LLM autonomously decides *when* to use a tool, *how* to use it, and *what* to do with the result.
+## 📘 Theory: What is an AI Agent?
 
-## Files & Architectures
+An AI Agent is more than just a chatbot. It is an LLM equipped with **tools** and a **reasoning loop**. Instead of just talking, the agent can:
+1.  **Reason**: Figure out what needs to be done.
+2.  **Act**: Call a tool (like a weather API).
+3.  **Observe**: Look at the results of the tool.
+4.  **Repeat**: Decide if more steps are needed or if it can give the final answer.
 
-* **`main.py`**: The baseline script. It takes user input and passes it directly to `gpt-4o` without any external tools. It cannot answer real-time weather questions accurately.
-* **`agent_one.py`**: Demonstrates **Hardcoded Routing**. It intercepts the user's input and checks if the word "weather" is present. If it is, it parses the city name and directly calls the Open-Meteo API using a custom `get_weather` function. If not, it falls back to a standard OpenAI chat completion.
-* **`agent_two(cot).py`**: Demonstrates a **ReAct / Chain of Thought Agent**. The system prompt instructs the LLM to output its thought process in JSON format using steps (`START`, `PLAN`, `TOOL`, `OBSERVE`, `OUTPUT`). The script parses this JSON, dynamically executes the `get_weather` tool when requested by the LLM, and feeds the observation back into the context window so the LLM can formulate a final answer.
+### Key Concepts:
+-   **Tool/Function Calling**: Providing the LLM with a list of functions it can use.
+-   **Structured Output**: Forcing the LLM to reply in a specific format (like JSON) so our code can parse it.
+-   **ReAct Pattern**: (Reason + Act) A popular framework where agents alternate between planning and taking actions.
 
-## How the Weather Tool Works
-Both agents utilize the free **Open-Meteo API**. The `get_weather(city)` function works in two steps:
-1. Calls the Geocoding API to convert the city name into latitude and longitude coordinates.
-2. Calls the Weather Forecast API using those coordinates to fetch the current temperature and wind speed.
+---
 
-## Prerequisites
+## 🛠️ Imports & Libraries
 
-1. Install the required dependencies:
-   ```bash
-   pip install requests openai python-dotenv pydantic
-Ensure your .env file contains your OPENAI_API_KEY.
+- `requests`: To make actual HTTP calls to the Open-Meteo weather API.
+- `pydantic`: To define the `MyOutputFormat` schema for structured responses.
+- `openai`: To use the `.parse()` method for guaranteed JSON structure.
 
-Usage
-Run any of the agents from your terminal:
+---
 
-Bash
-# Run the basic heuristic agent
-python agent_one.py
+## 💻 Code Explanation (Simplified)
 
-# Run the advanced Chain of Thought agent
-python "agent_two(cot).py"
+### 1. The Tool (`get_weather`)
+A standard Python function that calls a real-world API to get latitude, longitude, and then the current temperature of a city.
+```python
+def get_weather(city: str):
+    # 1. Get Lat/Lon (Geocoding)
+    # 2. Get Weather (Forecast API)
+    return f"The weather in {city} is 25°C"
+```
+
+### 2. Simple Routing (`agent_one.py`)
+Uses basic Python `if "weather" in user_query:` logic to decide when to call the tool. This is a "pseudo-agent".
+
+### 3. Reasoning Loop (`agent_two(cot).py`)
+This is a **real AI Agent**. It uses a `while True` loop and a `SYSTEM_PROMPT` that tells the AI to follow these steps:
+- **PLAN**: Think about what to do.
+- **TOOL**: If it needs weather, it outputs a JSON asking to call `get_weather`.
+- **OBSERVE**: Our code runs the tool and feeds the result back to the AI.
+- **OUTPUT**: Once it has the info, it gives the final answer.
+
+---
+
+## 📜 Full Code Listing: `agent_two(cot).py` (Core Loop)
+
+```python
+while True:
+    response = client.chat.completions.parse(
+        model="gpt-4o",
+        response_format=MyOutputFormat, # Structured output!
+        messages=message_history
+    )
+    parsed_result = response.choices[0].message.parsed
+
+    if parsed_result.step == "TOOL":
+        # Call the Python function manually
+        result = get_weather(parsed_result.input)
+        # Feed the result back to the AI
+        message_history.append({"role": "developer", "content": result})
+        
+    if parsed_result.step == "OUTPUT":
+        print("Final Answer:", parsed_result.content)
+        break
+```
+
+---
+
+## 🚀 How to Run
+
+1.  **Preparation**:
+    - Ensure your `.env` file has your `OPENAI_API_KEY`.
+2.  **Install dependencies**:
+    ```bash
+    pip install openai requests pydantic python-dotenv
+    ```
+3.  **Run the Agent**:
+    ```bash
+    python "agent_two(cot).py"
+    ```
+    *Input example: "What is the weather in Mumbai?"*
+
+---
+
+## 🎯 Summary
+We've moved from static chat to **dynamic agents**. By combining **Structured Outputs (Pydantic)** with a **Reasoning Loop**, we've built a system that can understand intent, fetch real-world data, and answer complex questions.
