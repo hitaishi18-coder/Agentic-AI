@@ -65,7 +65,7 @@ while True:
 
     response = client.chat.completions.create(
     model="gpt-4.1-mini",
-    max_tokens=100,
+    max_tokens=70,
     messages=[
         {"role":"system","content": SYSTEM_PROMPT},
         {"role":"user", "content": user_query}
