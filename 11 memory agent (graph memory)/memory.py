@@ -40,7 +40,7 @@ config = {
         "config": {
             "url": "neo4j+s://a862b4e7.databases.neo4j.io",
             "username": "a862b4e7",
-            "password": "YOUR_NEW_PASSWORD"   # 🔥 change this
+            "password": "YOUR_NEW_PASSWORD"
         }
     },
     "vector_store": {

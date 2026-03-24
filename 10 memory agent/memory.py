@@ -28,7 +28,7 @@ config = {
         "provider" : "openai",
         "config" : { 
             "api_key" : OPENAI_API_KEY, 
-            "model" : "openai/gpt-4o-mini"   
+            "model" : "gpt-4.1-mini"   
         }
     },
     "vector_store" : {
@@ -51,7 +51,7 @@ while True:
     search_memory = memory_client.search(query=user_query, user_id="hitaishi")   # only find relevant memories 
 
     memories = [
-        f"ID: {mem.get("id")}\nMemory: {mem.get("memory")}" 
+        f"ID: {mem.get('id')}\nMemory: {mem.get('memory')}" 
         for mem in search_memory.get("results")
     ]
 
@@ -64,26 +64,23 @@ while True:
 
 
     response = client.chat.completions.create(
-    model="openai/gpt-4o-mini",  
+    model="gpt-4.1-mini",
+    max_tokens=100,
     messages=[
         {"role":"system","content": SYSTEM_PROMPT},
         {"role":"user", "content": user_query}
     ],
-    max_tokens=30,
-    temperature=0.7
     )
+    
 
     # ai response 
     ai_response = response.choices[0].message.content
     print("ai response", ai_response)
 
     memory_client.add(
-    user_id="hitaishi",
-    messages=[
-        {"role":"user","content":user_query},
-        {"role":"assistant","content":ai_response}
-    ],
-    
+    user_query,
+    user_id="hitaishi"
+
     )
 
     print("memory is saved!")
