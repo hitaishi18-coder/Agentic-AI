@@ -181,3 +181,9 @@ while True:
 
 ## 🎯 Summary
 By integrating **Mem0** and **Qdrant**, we've transformed a generic chatbot into a **Persistent Memory Agent**. It doesn't just process text; it learns about the user over time, leading to a much more natural and helpful user experience.
+
+
+## output
+<img width="649" height="381" alt="Screenshot 2026-03-25 002309" src="https://github.com/user-attachments/assets/61c312bc-d11b-4dd0-927b-35d794be254a" />
+
+<img width="1920" height="1080" alt="Screenshot 2026-03-25 002322" src="https://github.com/user-attachments/assets/1b5d6d33-24d9-4b3f-af82-85e8549c6c0a" />
