@@ -109,3 +109,7 @@ print(response.choices[0].message.content)
 
 ## 🎯 Summary
 In this module, we've transitioned from text-only models to **Multimodal Vision Models**. By combining **text prompts** with **image URLs**, we can build applications that describe scenes, read text from photos (OCR), or even diagnose issues based on visual data.
+
+## output
+<img width="693" height="138" alt="Screenshot 2026-03-25 003316" src="https://github.com/user-attachments/assets/c356f793-c51d-4299-a0ac-59fb740667cf" />
+
