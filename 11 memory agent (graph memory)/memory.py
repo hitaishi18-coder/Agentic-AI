@@ -32,7 +32,8 @@ config = {
         "provider": "openai",
         "config": {
             "api_key": OPENAI_API_KEY,
-            "model": "openai/gpt-4o-mini"
+            "model": "openai/gpt-4o-mini",
+            "max_tokens": 100
         }
     },
     "graph_store": {
@@ -40,7 +41,7 @@ config = {
         "config": {
             "url": "neo4j+s://a862b4e7.databases.neo4j.io",
             "username": "a862b4e7",
-            "password": "YOUR_NEW_PASSWORD"
+            "password": "teoRu669QLsRnk8skt8z9fyGmED8zSZ22YJvaGqZ0j4"
         }
     },
     "vector_store": {
@@ -83,8 +84,7 @@ while True:
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_query}
         ],
-        max_tokens=30,
-        temperature=0.7
+        max_tokens=100,
     )
 
     # ai response
