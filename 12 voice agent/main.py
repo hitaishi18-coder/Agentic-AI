@@ -33,7 +33,7 @@ def main():
             """
 
         response = client.chat.completions.create(
-            model="gpt-4.1-mini",
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
             messages=[
                 {"role":"system","content": SYSTEM_PROMPT},
                 {"role":"user" , "content" : stt}
